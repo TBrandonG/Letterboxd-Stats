@@ -13,7 +13,7 @@ $top250Horror = @("Top 250 Horror","https://letterboxd.com/darrencb/list/letterb
 $top250WomenDirected = @("Top 250 Women-Directed","https://letterboxd.com/jack/list/women-directors-the-official-top-250-narrative/detail/page/")
 $top100Animation = @("Top 100 Animation","https://letterboxd.com/lifeasfiction/list/letterboxd-100-animation/detail/page/")
 
-$listArray = @($letterboxdTop250,$oscarBestPic,$imdbTop250,$boxOfficeTop100,$sightAndSount,$imdbTop250,$AFI100Years,$Wrights1000Fav,$seeBeforeYouDie,$top250Docs,$top250Horror,$top250WomenDirected,$top100Animation)
+$listArray = @($letterboxdTop250,$oscarBestPic,$imdbTop250,$boxOfficeTop100,$sightAndSount,$AFI100Years,$Wrights1000Fav,$seeBeforeYouDie,$top250Docs,$top250Horror,$top250WomenDirected,$top100Animation)
 
 foreach($list in $listArray)
 {
