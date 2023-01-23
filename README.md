@@ -15,7 +15,6 @@ $movieList.Where({$_.movie -eq "Metropolis"}).list | sort
 1,001 To See Before You Die
 Edgar Wright's 1,000 Favorites
 IMDb Top 250
-IMDb Top 250
 Letterboxd Top 250
 Sight & Sound Top 100
 ```
