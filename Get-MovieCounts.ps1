@@ -46,25 +46,5 @@ foreach($list in $listArray)
          }
     }
 }
-$finalMovieList = @()
-$movieCount = 1
-foreach($movie in ($movieList.movie | select -unique))
-{
-    Write-host -ForegroundColor White "Counting movie $movieCount of $(($movieList.movie | select -unique).count)"
-    $count = 0
-    foreach($otherMovie in $movieList.movie)
-    {
-        if($movie -eq $otherMovie)
-        {
-            $count ++ 
-        }
-    }
-    $obj = New-Object psobject -Property @{
-        movie = $movie
-        count = $count
-    }
-    $finalMovieList += $obj
-    $movieCount ++
-}
 
-$finalMovieList | sort count -Descending
+$movieCounts = ($movieList.movie | group | sort count -Descending | select count, name).where({$_.count -gt 4})
