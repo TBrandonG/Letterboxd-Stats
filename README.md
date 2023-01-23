@@ -20,4 +20,12 @@ Letterboxd Top 250
 Sight & Sound Top 100
 ```
 
+If you want to get a movie in the list at random:
+```powershell
+$movieList.movie | select -unique | Get-Random
+```
+```
+Spider-Man 2
+```
+
 If you're having an issue running this script it may be that you're PC isn't setup for running PS scripts, you may need to Run as Admin and `Set-ExecutionPolicy` to `RemoteSigned` or `Unrestricted`.
