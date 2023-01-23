@@ -9,11 +9,13 @@ I love movies though! And love checking my letterboxd stats. As a completionist 
 If you want to see the lists they're in you can use `$movieList.Where({$_.movie -eq "<movie to see>"}).list` (ie. `$movieList.Where({$_.movie -eq "Metropolis"}).list`).
 
 ```powershell
-PS> $movieList.Where({$_.movie -eq "Metropolis"}).list
-Letterboxd Top 250
-IMDb Top 250
-Sight & Sound Top 100
-IMDb Top 250
-Edgar Wright's 1,000 Favorites
+$movieList.Where({$_.movie -eq "Metropolis"}).list | sort
+```
+```
 1,001 To See Before You Die
+Edgar Wright's 1,000 Favorites
+IMDb Top 250
+IMDb Top 250
+Letterboxd Top 250
+Sight & Sound Top 100
 ```
