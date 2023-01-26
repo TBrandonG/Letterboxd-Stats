@@ -46,5 +46,58 @@ foreach($list in $listArray)
          }
     }
 }
+$username = read-host "Enter your Letterboxd username as it appears in the URL."
+$x = 1
+$listFound = $true
+$myMovies = @()
+while($listFound)
+{
+    Write-Host -ForegroundColor White "Parsing my watched movies, page $($x)"
+    $WebResponse = Invoke-WebRequest "https://letterboxd.com/$($username)/films/page/$($x)/"
+    $myMovies += ($WebResponse.images | where {$_.class -eq "Image"}).alt
+    if((($WebResponse.images | where {$_.class -eq "Image"}).alt).count -eq 0)
+    {
+        $listFound = $false
+    }
+    $x ++
+}
+$watchedMovies = @()
+foreach($movie in $myMovies)
+{
+    if(!($movie -eq "") -and !($movie -eq $null))
+    {
+        $obj = New-Object psobject -Property @{
+            movie = $movie
+        }
+        $watchedMovies += $obj
+        $y ++
+    }
+}
 
-$movieCounts = ($movieList.movie | group | sort count -Descending | select count, name).where({$_.count -gt 4})
+#$movieCounts = $movieList.movie | group | sort count -Descending | select name, count
+$title = "Run Reports"
+$message = "Select a report from the options below that you'd like to run."
+$1 = New-Object System.Management.Automation.Host.ChoiceDescription "&1 - View entire table of lists and movies.",`
+    "View entire table of lists and movies."
+$2 = New-Object System.Management.Automation.Host.ChoiceDescription "&2 - View entire table of lists and movies BUT removes movies you've watched.",`
+    "View entire table of lists and movies BUT removes movies you've watched."
+$3 = New-Object System.Management.Automation.Host.ChoiceDescription "&3 - View grouped table of movies the count of lists they're displayed on.",`
+    "View grouped table of movies the count of lists they're displayed on."
+$4 = New-Object System.Management.Automation.Host.ChoiceDescription "&4 - View grouped table of movies the count of lists they're displayed on BUT removes movies you've watched.",`
+    "View grouped table of movies the count of lists they're displayed on BUT removes movies you've watched."
+$options = [System.Management.Automation.Host.ChoiceDescription[]]($1, $2, $3, $4)
+$result = $host.ui.PromptForChoice($title,$message,$options,0)
+switch($result) {
+    0 {
+        $movieList
+    }
+    1 {
+        $movieList.Where({$_.movie -notin $watchedMovies.movie})
+    }
+    2 {
+        $movieList.movie | group | sort count -Descending | select name, count
+    }
+    3 {
+        ($movieList.Where({$_.movie -notin $watchedMovies.movie})).movie | group | sort count -Descending | select name, count
+    }
+}
