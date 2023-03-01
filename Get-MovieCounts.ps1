@@ -4,6 +4,7 @@ $movieList = @()
 $username = read-host "Enter your Letterboxd username as it appears in the URL."
 $WebResponse = Invoke-WebRequest "https://letterboxd.com/$($username)/stats/"
 $listNames = @(($WebResponse.ParsedHtml.getElementsByTagName('span') | where {$_.classname -eq "list-title yir-label"}).innerHTML.replace("<br>"," ").replace("&amp;","&"))
+$listLinks = @($WebResponse.Links | where{$_.innerHTML -like "*list-progress-inner*"}).href
 $max = $listNames.Count
 if($listLinks.count -gt $listNames.count)
 {
@@ -114,9 +115,9 @@ switch($result) {
         $movieList.Where({$_.movie -notin $watchedMovies.movie})
     }
     2 {
-        $movieList.movie | group | sort count -Descending | select name, count
+        ($movieList.movie | group | sort count -Descending | select name, count).where({$_.Count -gt 3})
     }
     3 {
-        ($movieList.Where({$_.movie -notin $watchedMovies.movie})).movie | group | sort count -Descending | select name, count
+        (($movieList.Where({$_.movie -notin $watchedMovies.movie})).movie | group | sort count -Descending | select name, count).where({$_.Count -gt 3})
     }
 }
