@@ -1,6 +1,6 @@
 cls
 
-$username = "b_bombr" #read-host "Enter your Letterboxd username as it appears in the URL."
+$username = read-host "Enter your Letterboxd username as it appears in the URL."
 
 ### Parse your personal Letterboxd Stats page for the available lists and their respective URLs
 $WebResponse = Invoke-WebRequest "https://letterboxd.com/$($username)/stats/"
