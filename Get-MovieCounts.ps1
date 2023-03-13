@@ -86,20 +86,57 @@ $WebResponse = Invoke-WebRequest "https://www.imdb.com/chart/top/?ref_=nv_mv_250
 $currentIMDB = ($WebResponse.Links.where({$_.innerHTML -eq $_.innerText -and $_.href -match "/title/"})).innerText
 
 ## Null out old variables
-$null = $pageURLs,$pageMovies,$obj,$WebResponse,$listNames,$listURLs,$listObj,$username
+
+$newMovieTable = @()
+$perc = $movieTable | group -Property list | select @{L = 'List'; E = {$_.Name}}, @{L = 'Count';E = {$_.Count}}, @{L = 'Percentage'; E = {1 / $_.Count}}
+foreach($movie in $movieTable)
+{
+	$obj = New-Object psobject -Property @{
+		name = $movie.name
+		movieUrl = $movie.movieUrl
+		listPosition = $movie.listPosition
+		list = $movie.list
+		listUrl = $movie.listUrl
+		moviePercentage = ($perc | where {$_.List -eq $movie.List}).Percentage
+	}
+	$newMovieTable += $obj
+}
+$movieTable = $newMovieTable
+
+$countTable = $movieTable | group -Property name, movieURL | sort count -Descending | select name, count
+$wholeTable = @()
+$c = 1
+foreach($movie in $countTable)
+{
+    $movieName = ($movie.name -split ", https")[0]
+    $percComplete = $c / $countTable.count * 100
+    write-progress -Activity "Calculating for movie $($c) of $($countTable.count)" -PercentComplete $percComplete
+	$obj = New-Object psobject -Property @{
+		name = $movieName
+		count = $movie.count
+        url = ($movieTable | Where {"$($_.name), $($_.movieUrl)" -eq $movie.name}).movieUrl | select -Unique
+		percentage = [math]::Round(((($movieTable | Where {$_.name -eq $movieName}).moviePercentage | Measure-Object -sum).sum * 100),3)
+	}
+	$wholeTable += $obj
+    $c ++
+}
+
+$null = $pageURLs,$pageMovies,$obj,$WebResponse,$listNames,$listURLs,$listObj,$username,$newMovieTable,$count
 
 ## few reports to start with
 $title = "Reports"
-$message = "Select a report from the options below that you'd like to run."
-$1 = New-Object System.Management.Automation.Host.ChoiceDescription "&1 - View entire table of lists and movies.",`
-    "Eentire table of lists and movies."
-$2 = New-Object System.Management.Automation.Host.ChoiceDescription "&2 - View entire table of lists and movies BUT removes movies you've watched.",`
-    "Entire table of lists and movies BUT removes movies you've watched."
-$3 = New-Object System.Management.Automation.Host.ChoiceDescription "&3 - Grouped table of movies and count of lists they're on.",`
-    "Grouped table of movies and count of lists they're on."
-$4 = New-Object System.Management.Automation.Host.ChoiceDescription "&4 - Grouped table of movies and count of lists they're on BUT removes movies you've watched.",`
-    "Grouped table of movies and count of lists they're on BUT removes movies you've watched."
-$options = [System.Management.Automation.Host.ChoiceDescription[]]($1, $2, $3, $4)
+$message = "Select a report."
+$1 = New-Object System.Management.Automation.Host.ChoiceDescription "&1 - View entire table.",`
+    "View entire table."
+$2 = New-Object System.Management.Automation.Host.ChoiceDescription "&2 - View table, remove watched.",`
+    "View table, remove watched."
+$3 = New-Object System.Management.Automation.Host.ChoiceDescription "&3 - Table of movies with count.",`
+    "Table of movies with count."
+$4 = New-Object System.Management.Automation.Host.ChoiceDescription "&4 - Table of movies with count, remove watched.",`
+    "Table of movies with count, remove watched."
+$5 = New-Object System.Management.Automation.Host.ChoiceDescription "&5 - Table of movies with percentages, remove watched.",`
+    "Table of movies with percentages, remove watched."
+$options = [System.Management.Automation.Host.ChoiceDescription[]]($1, $2, $3, $4, $5)
 $result = $host.ui.PromptForChoice($title,$message,$options,0)
 switch($result) {
     0 {
@@ -109,9 +146,12 @@ switch($result) {
         $movieTable.Where({$_.movieUrl -notin $myMovies.URL})
     }
     2 {
-        ($movieTable.movieUrl | group -Property name, movieURL | sort count -Descending | select name, count).where({$_.Count -gt 3})
+        ($wholeTable | sort count -Descending | select name, count).where({$_.Count -gt 3})
     }
     3 {
-        ($movieTable.Where({$_.movieUrl -notin $myMovies.URL}) | group -Property name, movieURL | sort count -Descending | select name, count).where({$_.Count -gt 3})
+        ($wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count).where({$_.Count -gt 3})
+    }
+    4 {
+        $wholeTable | where {$_.url -notin $myMovies.URL} | sort percentage -Descending | select name, percentage, count -first 10
     }
 }
