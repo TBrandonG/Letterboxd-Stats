@@ -146,12 +146,12 @@ switch($result) {
         $movieTable.Where({$_.movieUrl -notin $myMovies.URL})
     }
     2 {
-        ($wholeTable | sort count -Descending | select name, count).where({$_.Count -gt 3})
+        $wholeTable | sort count -Descending | select name, count -First 10
     }
     3 {
-        ($wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count).where({$_.Count -gt 3})
+        $wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count -First 10
     }
     4 {
-        $wholeTable | where {$_.url -notin $myMovies.URL} | sort percentage -Descending | select name, percentage, count -first 10
+        $wholeTable | where({$_.url -notin $myMovies.URL}) | sort count,percentage -descending | select name, percentage, count -first 10
     }
 }
