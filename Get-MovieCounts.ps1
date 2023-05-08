@@ -152,6 +152,6 @@ switch($result) {
         $wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count -First 10
     }
     4 {
-        $wholeTable | where({$_.url -notin $myMovies.URL}) | sort count,percentage -descending | select name, percentage, count -first 10
+        $wholeTable | where({$_.url -notin $myMovies.URL}) | sort count,percentage -descending | select name, percentage, count -first 20
     }
 }
