@@ -37,12 +37,22 @@ foreach($list in $listObj)
 		{
 			## Get movie URLs and add data to obj with list title, URL, and position in the list
 			$pageURLs = @($WebResponse.ParsedHtml.getElementsByTagName('li') | where {$_.classname -like "poster-container*"}).innerHTML | foreach{$_.Split('""')[9]}
+            ## Get 11th field too since Letterboxd wants to add lists that contain custom posters..
+			$pageURLs2 = @($WebResponse.ParsedHtml.getElementsByTagName('li') | where {$_.classname -like "poster-container*"}).innerHTML | foreach{$_.Split('""')[11]}
 			for($i = 0; $i -lt $pageMovies.count; $i++)
 			{
+                if($pageURLs[$i] -eq "")
+                {
+                    $pageURLValue = $pageURLs2[$i]
+                }
+                else
+                {
+                    $pageURLValue = $pageURLs[$i]
+                }
 				$obj = New-Object psobject -Property @{
 					list = $list.name
 					name = $pageMovies[$i]
-					movieUrl = "https://letterboxd.com$($pageURLs[$i])"
+					movieUrl = "https://letterboxd.com$($pageURLValue)"
 					listUrl = $list.link
                     listPosition = ($page - 1) * 100 + $i + 1
 				}
@@ -53,7 +63,7 @@ foreach($list in $listObj)
     }
 }
 
-### Loop through each page of movies you're watched to collect their titles and URLs
+### Loop through each page of movies you've watched to collect their titles and URLs
 $page = 1
 $listFound = $true
 $myMovies = @()
@@ -152,6 +162,6 @@ switch($result) {
         $wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count -First 10
     }
     4 {
-        $wholeTable | where({$_.url -notin $myMovies.URL}) | sort count,percentage -descending | select name, percentage, count -first 20
+        $wholeTable | where({$_.url -notin $myMovies.URL}) | sort percentage,count -descending | select name, percentage, count -first 20
     }
 }
