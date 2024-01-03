@@ -31,7 +31,7 @@ foreach($list in $listObj)
 		$pageMovies = @($WebResponse.images | where {$_.class -eq "Image"}).alt
 		if($pageMovies.count -eq 0)
 		{
-			$listFound = $false
+		    $listFound = $false
 		}
 		else
 		{
@@ -54,7 +54,7 @@ foreach($list in $listObj)
 					name = $pageMovies[$i]
 					movieUrl = "https://letterboxd.com$($pageURLValue)"
 					listUrl = $list.link
-			    		listPosition = ($page - 1) * 100 + $i + 1
+					listPosition = ($page - 1) * 100 + $i + 1
 				}
 				$movieTable += $obj
 			}
@@ -118,14 +118,15 @@ $wholeTable = @()
 $c = 1
 foreach($movie in $countTable)
 {
-	$movieName = ($movie.name -split ", https")[0]
+	$loopMovieName = ($movie.name -split ", https")[0]
+	$loopMovieURL = "https"+$(($movie.name -split ", https")[1])
 	$percComplete = $c / $countTable.count * 100
-	write-progress -Activity "Calculating for movie $($c) of $($countTable.count)" -PercentComplete $percComplete
+	write-progress -Activity "Calculating for movie $($c) of $($countTable.count) - $loopMovieName" -PercentComplete $percComplete
 	$obj = New-Object psobject -Property @{
-		name = $movieName
+		name = $loopMovieName
 		count = $movie.count
 		url = ($movieTable | Where {"$($_.name), $($_.movieUrl)" -eq $movie.name}).movieUrl | select -Unique
-		percentage = [math]::Round(((($movieTable | Where {$_.name -eq $movieName}).moviePercentage | Measure-Object -sum).sum * 100),3)
+		percentage = [math]::Round(((($movieTable | Where {$_.name -eq $loopMovieName -and $_.movieUrl -eq $loopMovieURL}).moviePercentage | Measure-Object -sum).sum * 100),3)
 	}
 	$wholeTable += $obj
 	$c ++
@@ -162,6 +163,6 @@ switch($result) {
 		$wholeTable.Where({$_.url -notin $myMovies.URL}) | sort count -Descending | select name, count -First 10
 	}
 	4 {
-		$wholeTable | where({$_.url -notin $myMovies.URL}) | sort percentage,count -descending | select name, percentage, count -first 20
+		$wholeTable | where({$_.url -notin $myMovies.URL}) | sort percentage,count -descending | select name, url, percentage, count -first 20
 	}
 }
