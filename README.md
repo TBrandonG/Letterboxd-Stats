@@ -4,7 +4,11 @@ First, I'm not a developer; don't judge. More of a scripter, if anything.
 
 I love movies though! And love checking my letterboxd stats. As a completionist I like to challenge myself to watch as many movies in the "prestigious" lists (IMDb Top 250, Edgar Wright's 1,000 Favorite Movies, etc) as I can! What I couldn't find was a good indication of what movies stretched across multiple lists, which do the most, and so forth, so I can get the most bang for my watch. So, I wrote this. It's simple, but it works.
 
-## Update 1.25.23
+## Update 24.1.3
+
+Modified for when a list uses custom posters, the URL was returning blank and not matching with titles you've watched.
+
+## Update 23.1.25
 
 I added the ability to scan your watched movies using your username as seen in the letterboxd URLs.
 
